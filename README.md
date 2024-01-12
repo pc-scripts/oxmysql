@@ -24,6 +24,28 @@ https://github.com/overextended/oxmysql/releases/latest/download/oxmysql.zip
 - Support for URI connection strings and semicolon separated values.
 - Improved parameter checking and error handling.
 
+### PrepareQuery
+
+- add ?? for column and table names.
+- add array/object (table) support to ? and ??
+
+Examples:
+
+```lua
+local query, params
+query, params = MySQL.PrepareQuery('SELECT * FROM ?? WHERE ?? = ?', {'players', 'id', 1})
+query = 'SELECT * FROM `players` WHERE `id` = ?'
+params = {1}
+
+query, params = MySQL.PrepareQuery('INSERT INTO ?? (??) VALUES (?)', {'players', {'column1', 'column2'}, {'value1', 'value2'}})
+query = 'INSERT INTO `players` (`column1`, `column2`) VALUES (?, ?)'
+params = {'value1', 'value2'}
+
+query, params = MySQL.PrepareQuery('UPDATE `players` SET ? WHERE id = ?', {{key1 = 1, key2 = 2, key3 = 3}, 'test'})
+query = 'UPDATE `players` SET `key1` = ?, `key2` = ?, `key3` = ? WHERE id = ?'
+params = {1, 2, 3, 'value1', 'value2'}
+```
+
 ## npm Package
 
 https://www.npmjs.com/package/@overextended/oxmysql

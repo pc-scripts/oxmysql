@@ -136,4 +136,55 @@ MySQL.ready = setmetatable({
 	end,
 })
 
+function MySQL.PrepareQuery(query, parameters)
+	local values = {}
+	local parameterIndex = 0
+
+	local newQuery = string.gsub(query, "%??%?", function(a)
+		parameterIndex = parameterIndex + 1
+
+		if a == '?' then
+			if not (type(parameters[parameterIndex]) == 'table') then
+				table.insert(values, parameters[parameterIndex])
+
+				return '?'
+			end
+
+			local keys = {}
+			local isArray = false
+			for key, value in pairs(parameters[parameterIndex]) do
+				if type(key) == 'number' then
+					isArray = true
+				else
+					table.insert(keys, '`'..key..'`')
+				end
+
+				table.insert(values, value)
+			end
+
+			if isArray then
+				return string.rep('?, ', #parameters[parameterIndex]):sub(1, -3)
+			end
+
+			return table.concat(keys, ' = ?, ') .. ' = ?'
+		elseif a == '??' then
+			local vars = parameters[parameterIndex]
+			if type(vars) ~= "table" then
+				vars = {vars}
+			end
+
+			local columns = {}
+			for _, value in pairs(vars) do
+				table.insert(columns, '`'..value..'`')
+			end
+
+			return table.concat(columns, ', ')
+		end
+
+		return 'UNKNOWN'
+	end)
+
+	return newQuery, values
+end
+
 _ENV.MySQL = MySQL
