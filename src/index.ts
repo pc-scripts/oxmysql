@@ -114,6 +114,7 @@ MySQL.store = (query: string, cb: Function) => {
 // deprecated export names
 MySQL.execute = MySQL.query;
 MySQL.fetch = MySQL.query;
+MySQL.format = (...args) => pool.format(...args);
 
 function provide(resourceName: string, method: string, cb: Function) {
   on(`__cfx_export_${resourceName}_${method}`, (setCb: Function) => setCb(cb));
